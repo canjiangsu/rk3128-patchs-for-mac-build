@@ -1,0 +1,104 @@
+From 567a34b9d014abd86e2ce67f86d0a7310609e791 Mon Sep 17 00:00:00 2001
+From: sucj <sucj@mpos.top>
+Date: Thu, 15 Sep 2016 09:59:33 +0800
+Subject: [PATCH] for mac build
+
+---
+ core/combo/HOST_darwin-x86.mk    | 15 ++++++++++++---
+ core/combo/HOST_darwin-x86_64.mk | 13 +++++++++++--
+ core/combo/mac_version.mk        |  2 +-
+ 3 files changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/core/combo/HOST_darwin-x86.mk b/core/combo/HOST_darwin-x86.mk
+index ec37993..ccafd5f 100644
+--- a/core/combo/HOST_darwin-x86.mk
++++ b/core/combo/HOST_darwin-x86.mk
+@@ -37,11 +37,20 @@ $(combo_2nd_arch_prefix)HOST_TOOLCHAIN_PREFIX := $($(combo_2nd_arch_prefix)HOST_
+ ifneq (,$(strip $(wildcard $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_PREFIX)-gcc)))
+ $(combo_2nd_arch_prefix)HOST_CC  := $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_PREFIX)-gcc
+ $(combo_2nd_arch_prefix)HOST_CXX := $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_PREFIX)-g++
+-ifneq ($(filter 10.8 10.9, $(mac_sdk_version)),)
++ifneq ($(filter 10.9 10.10, $(mac_sdk_version)),)
++host_toolchain_header := $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_ROOT)/lib/gcc/i686-apple-darwin$(gcc_darwin_version)/4.2.1/include
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -isystem $(mac_sdk_root)/usr/include/c++/4.2.1
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -Wno-unused-parameter
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -isystem $(host_toolchain_header)
++$(combo_2nd_arch_prefix)HOST_GLOBAL_LDFLAGS += -Wl,-arch,i386,-lstdc++
++else
++ifeq ($(mac_sdk_version),10.8)
++#ifneq ($(filter 10.8 10.9 10.10, $(mac_sdk_version)),)
+ # Mac SDK 10.8+ no longer has stdarg.h, etc
+ host_toolchain_header := $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_ROOT)/lib/gcc/i686-apple-darwin$(gcc_darwin_version)/4.2.1/include
+ $(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -isystem $(host_toolchain_header)
+ endif
++endif
+ else
+ $(combo_2nd_arch_prefix)HOST_CC := gcc
+ $(combo_2nd_arch_prefix)HOST_CXX := g++
+@@ -66,7 +75,7 @@ $(combo_2nd_arch_prefix)HOST_JNILIB_SUFFIX := .jnilib
+ $(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += \
+     -include $(call select-android-config-h,darwin-x86)
+ 
+-ifneq ($(filter 10.7 10.7.% 10.8 10.8.%, $(build_mac_version)),)
++ifneq ($(filter 10.7 10.7.% 10.8 10.8.% 10.9 10.9.% 10.10 10.10.% 10.11 10.11.%, $(build_mac_version)),)
+        $(combo_2nd_arch_prefix)HOST_RUN_RANLIB_AFTER_COPYING := false
+ else
+        $(combo_2nd_arch_prefix)HOST_RUN_RANLIB_AFTER_COPYING := true
+@@ -116,5 +125,5 @@ endef
+ 
+ # $(1): The file to check
+ define get-file-size
+-stat -f "%z" $(1)
++/usr/bin/stat -f "%z" $(1)
+ endef
+diff --git a/core/combo/HOST_darwin-x86_64.mk b/core/combo/HOST_darwin-x86_64.mk
+index a776a69..6d79022 100644
+--- a/core/combo/HOST_darwin-x86_64.mk
++++ b/core/combo/HOST_darwin-x86_64.mk
+@@ -37,11 +37,20 @@ HOST_TOOLCHAIN_PREFIX := $(HOST_TOOLCHAIN_ROOT)/bin/i686-apple-darwin$(gcc_darwi
+ ifneq (,$(strip $(wildcard $(HOST_TOOLCHAIN_PREFIX)-gcc)))
+ HOST_CC  := $(HOST_TOOLCHAIN_PREFIX)-gcc
+ HOST_CXX := $(HOST_TOOLCHAIN_PREFIX)-g++
+-ifneq ($(filter 10.8 10.9, $(mac_sdk_version)),)
++ifneq ($(filter 10.9 10.10, $(mac_sdk_version)),)
++host_toolchain_header := $($(combo_2nd_arch_prefix)HOST_TOOLCHAIN_ROOT)/lib/gcc/i686-apple-darwin$(gcc_darwin_version)/4.2.1/include
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -isystem $(mac_sdk_root)/usr/include/c++/4.2.1
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -Wno-unused-parameter
++$(combo_2nd_arch_prefix)HOST_GLOBAL_CFLAGS += -isystem $(host_toolchain_header)
++$(combo_2nd_arch_prefix)HOST_GLOBAL_LDFLAGS += -Wl,-arch,x86_64,-lstdc++
++else
++ifeq ($(mac_sdk_version),10.8)
++#ifneq ($(filter 10.8 10.9, $(mac_sdk_version)),)
+ # Mac SDK 10.8+ no longer has stdarg.h, etc
+ host_toolchain_header := $(HOST_TOOLCHAIN_ROOT)/lib/gcc/i686-apple-darwin$(gcc_darwin_version)/4.2.1/include
+ HOST_GLOBAL_CFLAGS += -isystem $(host_toolchain_header)
+ endif
++endif
+ else
+ HOST_CC := gcc
+ HOST_CXX := g++
+@@ -65,7 +74,7 @@ HOST_JNILIB_SUFFIX := .jnilib
+ HOST_GLOBAL_CFLAGS += \
+     -include $(call select-android-config-h,darwin-x86)
+ 
+-ifneq ($(filter 10.7 10.7.% 10.8 10.8.%, $(build_mac_version)),)
++ifneq ($(filter 10.7 10.7.% 10.8 10.8.% 10.9 10.9.% 10.10 10.10.% 10.11 10.11.%, $(build_mac_version)),)
+        HOST_RUN_RANLIB_AFTER_COPYING := false
+ else
+        HOST_RUN_RANLIB_AFTER_COPYING := true
+diff --git a/core/combo/mac_version.mk b/core/combo/mac_version.mk
+index 6defba7..4332f3f 100644
+--- a/core/combo/mac_version.mk
++++ b/core/combo/mac_version.mk
+@@ -9,7 +9,7 @@ ifndef build_mac_version
+ 
+ build_mac_version := $(shell sw_vers -productVersion)
+ 
+-mac_sdk_versions_supported :=  10.6 10.7 10.8 10.9
++mac_sdk_versions_supported :=  10.6 10.7 10.8 10.9 10.10
+ ifneq ($(strip $(MAC_SDK_VERSION)),)
+ mac_sdk_version := $(MAC_SDK_VERSION)
+ ifeq ($(filter $(mac_sdk_version),$(mac_sdk_versions_supported)),)
+-- 
+2.3.2 (Apple Git-55)
+

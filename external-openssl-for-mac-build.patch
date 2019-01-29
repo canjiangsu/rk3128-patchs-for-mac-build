@@ -1,0 +1,53 @@
+From 09e0f2687bbe0562618bea6006b638885a13f918 Mon Sep 17 00:00:00 2001
+From: sucj <sucj@mpos.top>
+Date: Thu, 15 Sep 2016 10:03:30 +0800
+Subject: [PATCH] for mac build
+
+---
+ Apps-config-host.mk   | 2 ++
+ Crypto-config-host.mk | 2 ++
+ Ssl-config-host.mk    | 2 ++
+ 3 files changed, 6 insertions(+)
+
+diff --git a/Apps-config-host.mk b/Apps-config-host.mk
+index 2520f11..5394c68 100644
+--- a/Apps-config-host.mk
++++ b/Apps-config-host.mk
+@@ -114,6 +114,8 @@ LOCAL_SRC_FILES_x86 += $(filter-out $(x86_exclude_files), $(common_src_files) $(
+ LOCAL_CFLAGS_x86_64 += $(x86_64_cflags)
+ LOCAL_SRC_FILES_x86_64 += $(filter-out $(x86_64_exclude_files), $(common_src_files) $(x86_64_src_files))
+ else
++ifneq ($(HOST_OS),darwin)	
+ $(warning Unknown host OS $(HOST_OS))
++endif
+ LOCAL_SRC_FILES += $(common_src_files)
+ endif
+diff --git a/Crypto-config-host.mk b/Crypto-config-host.mk
+index 5c63e9e..6dbd142 100644
+--- a/Crypto-config-host.mk
++++ b/Crypto-config-host.mk
+@@ -709,6 +709,8 @@ LOCAL_SRC_FILES_x86 += $(filter-out $(x86_exclude_files), $(common_src_files) $(
+ LOCAL_CFLAGS_x86_64 += $(x86_64_cflags)
+ LOCAL_SRC_FILES_x86_64 += $(filter-out $(x86_64_exclude_files), $(common_src_files) $(x86_64_src_files))
+ else
++ifneq ($(HOST_OS),darwin)
+ $(warning Unknown host OS $(HOST_OS))
++endif
+ LOCAL_SRC_FILES += $(common_src_files)
+ endif
+diff --git a/Ssl-config-host.mk b/Ssl-config-host.mk
+index 1785ea2..80ca9eb 100644
+--- a/Ssl-config-host.mk
++++ b/Ssl-config-host.mk
+@@ -108,6 +108,8 @@ LOCAL_SRC_FILES_x86 += $(filter-out $(x86_exclude_files), $(common_src_files) $(
+ LOCAL_CFLAGS_x86_64 += $(x86_64_cflags)
+ LOCAL_SRC_FILES_x86_64 += $(filter-out $(x86_64_exclude_files), $(common_src_files) $(x86_64_src_files))
+ else
++ifneq ($(HOST_OS),darwin)	
+ $(warning Unknown host OS $(HOST_OS))
++endif
+ LOCAL_SRC_FILES += $(common_src_files)
+ endif
+-- 
+2.3.2 (Apple Git-55)
+

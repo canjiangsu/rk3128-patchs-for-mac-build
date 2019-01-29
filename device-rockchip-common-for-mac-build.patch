@@ -1,0 +1,62 @@
+From 29600abcea174625a59f4930dc7857ed1c4bf98d Mon Sep 17 00:00:00 2001
+From: sucj <sucj@mpos.top>
+Date: Thu, 15 Sep 2016 10:00:57 +0800
+Subject: [PATCH] for mac build
+
+---
+ build.sh   | 10 +++++++++-
+ mkimage.sh | 11 ++++++++++-
+ 2 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/build.sh b/build.sh
+index 53e87a0..18ba3e5 100755
+--- a/build.sh
++++ b/build.sh
+@@ -1,6 +1,14 @@
+ #!/bin/bash
+ 
+-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
++UNAME_S=`uname -s`
++echo UNAME_S is $UNAME_S
++if [ "$UNAME_S" == "Linux" ]; then
++    export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
++fi
++if [ "$UNAME_S" == "Darwin" ]; then
++    jdk7
++fi
++
+ export PATH=$JAVA_HOME/bin:$PATH
+ export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+ 
+diff --git a/mkimage.sh b/mkimage.sh
+index 4ac1171..7560193 100755
+--- a/mkimage.sh
++++ b/mkimage.sh
+@@ -19,6 +19,15 @@ IMAGE_PATH=rockdev/Image-$TARGET_PRODUCT
+ rm -rf $IMAGE_PATH
+ mkdir -p $IMAGE_PATH
+ 
++UNAME_S=`uname -s`
++echo UNAME_S is $UNAME_S
++if [ "$UNAME_S" == "Linux" ]; then
++    MKKRNLIMG="mkkrnlimg"
++fi
++if [ "$UNAME_S" == "Darwin" ]; then
++    MKKRNLIMG="mkkrnlimg_darwin"
++fi
++echo MKKRNLIMG is $MKKRNLIMG
+ FSTYPE=ext4
+ echo system filesysystem is $FSTYPE
+ 
+@@ -64,7 +73,7 @@ else
+ 	[ -d $OUT/root ] && \
+ 	mkbootfs $OUT/root | minigzip > $OUT/ramdisk.img && \
+         truncate -s "%4" $OUT/ramdisk.img && \
+-	rkst/mkkrnlimg $OUT/ramdisk.img $IMAGE_PATH/boot.img >/dev/null
++	rkst/$MKKRNLIMG $OUT/ramdisk.img $IMAGE_PATH/boot.img >/dev/null
+ 	echo "done."
+ fi
+ if [ $TARGET == $BOOT_OTA ]
+-- 
+2.3.2 (Apple Git-55)
+

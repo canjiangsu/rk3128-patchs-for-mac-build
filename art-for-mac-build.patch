@@ -1,0 +1,89 @@
+From e953b6732e1b84b302172a9dd7cb35e04ef397fb Mon Sep 17 00:00:00 2001
+From: sucj <sucj@mpos.top>
+Date: Thu, 15 Sep 2016 09:57:31 +0800
+Subject: [PATCH] for mac build
+
+---
+ runtime/arch/x86/quick_entrypoints_x86.S       | 16 ++++++++--------
+ runtime/arch/x86_64/quick_entrypoints_x86_64.S | 10 +++++-----
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/runtime/arch/x86/quick_entrypoints_x86.S b/runtime/arch/x86/quick_entrypoints_x86.S
+index bfb89e8..aec7b23 100644
+--- a/runtime/arch/x86/quick_entrypoints_x86.S
++++ b/runtime/arch/x86/quick_entrypoints_x86.S
+@@ -1376,35 +1376,35 @@ END_FUNCTION art_nested_signal_return
+ UNIMPLEMENTED art_quick_memcmp16
+ 
+ MACRO2(QUICK_MATH_1ARG, quick_name, c_name)
+-    DEFINE_FUNCTION quick_name
++    DEFINE_FUNCTION RAW_VAR(quick_name, 0)
+         PUSH eax                      // alignment padding
+         PUSH ecx                      // pass arg2 a.hi
+         PUSH eax                      // pass arg1 a.lo
+         SETUP_GOT_NOSAVE              // clobbers EBX
+-        call PLT_SYMBOL(c_name)       // (jdouble a)
++        call PLT_VAR(c_name, 1)       // (jdouble a)
+         fstpl (%esp)                  // put result on stack
+         movq (%esp), %xmm0            // store result in XMM0
+-        addl LITERAL(12), %esp        // pop arguments
++        addl MACRO_LITERAL(12), %esp        // pop arguments
+         CFI_ADJUST_CFA_OFFSET(-12)
+         ret
+-    END_FUNCTION quick_name
++    END_FUNCTION RAW_VAR(quick_name, 0)
+ END_MACRO
+ 
+ MACRO2(QUICK_MATH_2ARG, quick_name, c_name)
+-    DEFINE_FUNCTION quick_name
++    DEFINE_FUNCTION RAW_VAR(quick_name, 0)
+         PUSH eax                      // alignment padding
+         PUSH ebx                      // pass arg4 b.hi
+         PUSH edx                      // pass arg3 b.lo
+         PUSH ecx                      // pass arg2 a.hi
+         PUSH eax                      // pass arg1 a.lo
+         SETUP_GOT_NOSAVE              // clobbers EBX
+-        call PLT_SYMBOL(c_name)       // (jdouble a)
++        call PLT_VAR(c_name, 1)       // (jdouble a)
+         fstpl (%esp)                  // put result on stack
+         movq (%esp), %xmm0            // store result in XMM0
+-        addl LITERAL(20), %esp        // pop argument
++        addl MACRO_LITERAL(20), %esp        // pop argument
+         CFI_ADJUST_CFA_OFFSET(-20)
+         ret
+-    END_FUNCTION quick_name
++    END_FUNCTION RAW_VAR(quick_name, 0)
+ END_MACRO
+ 
+ QUICK_MATH_1ARG art_quick_cos, cos
+diff --git a/runtime/arch/x86_64/quick_entrypoints_x86_64.S b/runtime/arch/x86_64/quick_entrypoints_x86_64.S
+index bfe7358..53541c4 100644
+--- a/runtime/arch/x86_64/quick_entrypoints_x86_64.S
++++ b/runtime/arch/x86_64/quick_entrypoints_x86_64.S
+@@ -1595,18 +1595,18 @@ DEFINE_FUNCTION art_nested_signal_return
+ END_FUNCTION art_nested_signal_return
+ 
+ MACRO2(QUICK_MATH, quick_name, c_name)
+-    DEFINE_FUNCTION quick_name
++    DEFINE_FUNCTION RAW_VAR(quick_name, 0)
+         // Alignment padding.
+-        subq LITERAL(8), %rsp
++        subq MACRO_LITERAL(8), %rsp
+         CFI_ADJUST_CFA_OFFSET(8)
+         SETUP_FP_CALLEE_SAVE_FRAME
+-        call PLT_SYMBOL(c_name)
++        call PLT_VAR(c_name, 1)
+         RESTORE_FP_CALLEE_SAVE_FRAME
+         // Restore arguments.
+-        addq LITERAL(8), %rsp
++        addq MACRO_LITERAL(8), %rsp
+         CFI_ADJUST_CFA_OFFSET(-8)
+         ret
+-    END_FUNCTION quick_name
++    END_FUNCTION RAW_VAR(quick_name, 0)
+ END_MACRO
+ 
+ QUICK_MATH art_quick_cos, cos
+-- 
+2.3.2 (Apple Git-55)
+
